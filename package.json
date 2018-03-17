@@ -1,0 +1,18 @@
+{
+  "name": "seamless-slider",
+  "version": "1.0.0",
+  "description": "A seamless carousel plugin for Zepto & jQuery",
+  "main": "src/seamlessSlider.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build src/seamlessSlider.js -d dist"
+  },
+  "keywords": [
+    "zepto",
+    "jquery",
+    "seamless",
+    "slider"
+  ],
+  "author": "Daker",
+  "license": "MIT"
+}
