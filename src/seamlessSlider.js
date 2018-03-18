@@ -1,7 +1,11 @@
 class Slider {
     constructor () {
       this.setting = {
-  
+        activeColor: '#00BCD4',
+        autoPlay: true,
+        playInterval: 2000,
+        playDir: 'left',
+        controllers: ['footer']
       }
       this.$container = null
       this.$innerBox = null
@@ -11,13 +15,26 @@ class Slider {
       this.timer = 0
     }
     init (containerSelector, listSelector, setting) {
-      const self = this
       Object.assign(this.setting, setting)
       this.$container = $(containerSelector)
       this.$innerBox = $('<div></div>')
       const $lis = $(listSelector)
       this.liLength = $lis.length
       this.boxWidth = this.$container.width()
+      this.initCss($lis)
+      $lis.wrapAll(this.$innerBox)
+      this.$innerBox.append($lis.first().clone())
+      // $lis.last().after($lis.first().clone())
+      this.bindEvent()
+      if (this.setting.controllers.includes('footer')) {
+        this.creatFooter()
+      }
+      if (this.setting.autoPlay) {
+        this.autoPlay()
+      }
+    }
+    initCss ($lis) {
+      const self = this
       this.$innerBox.css({
         position: 'absolute',
         top: '0',
@@ -36,16 +53,13 @@ class Slider {
           height: '100%'
         })
       })
-      $lis.wrapAll(this.$innerBox)
-      $lis.last().after($lis.first().clone())
-      this.creatFooter()
-      this.bindEvent()
-      this.autoPlay()
     }
     autoPlay () {
       this.timer = setInterval(() => {
-        this.slideRight()
-      }, 2000)
+        this.setting.playDir === 'left' ?
+          this.slideLeft() :
+          this.slideRight()
+      }, this.setting.playInterval)
     }
     slideLeft () {
       const self = this
@@ -93,16 +107,20 @@ class Slider {
       const idx = Number.parseInt(Math.abs(oriLeft / this.boxWidth))
       this.changeActiveFooter(idx - 1)
     }
+    /**
+     * 滑动到指定序号的滑块
+     * @param {number} idx 滑块的序号
+     */
     turnTo (idx) {
-      const self = this
-      let oriLeft = Number.parseInt(this.$innerBox.css('left'))
-      const maxLeft = - this.boxWidth
       this.$innerBox.animate({
         left: - idx * this.boxWidth + 'px'
       }, 500, 'ease-out')
       this.changeActiveFooter(idx)
     }
     creatFooter () {
+      if (this.$container.find('.slider-footer').length) {
+        return
+      }
       const self = this
       const html = '<div class="slider-footer"></div>'
       const $footer = $(html)
@@ -126,8 +144,9 @@ class Slider {
       }
       $footer.css({
         position: 'absolute',
-        left: 'calc(50% - 50px)',
-        bottom: '4px'
+        bottom: '4px',
+        width: '100%',
+        textAlign: 'center'
       })
       this.$container.append($footer)
       this.changeActiveFooter(0)
@@ -138,7 +157,7 @@ class Slider {
           $ele
             .addClass('is-active')
             .css({
-              background: '#00BCD4'
+              background: this.setting.activeColor
             })
         } else {
           $ele
@@ -155,7 +174,9 @@ class Slider {
         clearInterval(self.timer)
       })
       this.$container.on('mouseleave', function () {
-        self.autoPlay()
+        if (self.setting.autoPlay) {
+          self.autoPlay()
+        }
       })
     }
   }
