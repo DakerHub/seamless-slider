@@ -5,14 +5,15 @@ class Slider {
       this.setting = {
         activeColor: '#00BCD4',
         autoPlay: true,
-        playInterval: 2000,
-        playDir: 'left',
-        controllers: ['footer']
+        autoPlayInterval: 2000,
+        autoautoPlayDir: 'left',
+        controllers: ['indicator'],
+        switchingInterval: 500
       }
       this.$container = null
       this.$innerBox = null
       this.$lis = null
-      this.$footers = []
+      this.$indicators = []
       this.boxWidth = 0
       this.liLength = 0
       this.timer = 0
@@ -29,28 +30,34 @@ class Slider {
       this.$lis.wrapAll(this.$innerBox)
       this.$innerBox.append(this.$lis.first().clone())
       this._bindEvent()
-      if (this.setting.controllers.includes('footer')) {
-        this._creatFooter()
+      if (this.setting.controllers.includes('indicator')) {
+        this._creatIndicator()
       }
       if (this.setting.autoPlay) {
         this.autoPlay()
       }
       this._resizeBox()
     }
+    /**
+     * 开始自动滑动
+     */
     autoPlay () {
       this.timer = setInterval(() => {
-        this.setting.playDir === 'left' ?
+        this.setting.autoPlayDir === 'left' ?
           this.slideLeft() :
           this.slideRight()
-      }, this.setting.playInterval)
+      }, this.setting.autoPlayInterval)
     }
+    /**
+     * 像左滑动一个滑块
+     */
     slideLeft () {
       const self = this
       const oriLeft = Number.parseInt(this.$innerBox.css('left'))
       const minLeft = - this.boxWidth * (this.liLength - 1)
       this.$innerBox.animate({
         left: oriLeft - this.boxWidth + 'px'
-      }, 500, 'ease-out', function () {
+      }, this.setting.switchingInterval, 'ease-out', function () {
         const $this = $(this)
         const afterLeft = Number.parseInt($this.css('left'))
         if (afterLeft < minLeft) {
@@ -66,6 +73,9 @@ class Slider {
       }
       this.changeActiveFooter(idx + 1)
     }
+    /**
+     * 向右滑动一个滑块
+     */
     slideRight () {
       const self = this
       let oriLeft = Number.parseInt(this.$innerBox.css('left'))
@@ -78,7 +88,7 @@ class Slider {
       }
       this.$innerBox.animate({
         left: oriLeft + this.boxWidth + 'px'
-      }, 500, 'ease-out', function () {
+      }, this.setting.switchingInterval, 'ease-out', function () {
         const $this = $(this)
         const afterLeft = Number.parseInt($this.css('left'))
         if (afterLeft > maxLeft) {
@@ -97,11 +107,15 @@ class Slider {
     turnTo (idx) {
       this.$innerBox.animate({
         left: - idx * this.boxWidth + 'px'
-      }, 500, 'ease-out')
+      }, this.setting.switchingInterval, 'ease-out')
       this.changeActiveFooter(idx)
     }
+    /**
+     * 改变当前的指示器
+     * @param {number} idx 当前指示器的序号
+     */
     changeActiveFooter (idx) {
-      this.$footers.forEach(($ele, i) => {
+      this.$indicators.forEach(($ele, i) => {
         if (i === idx) {
           $ele
             .addClass('is-active')
@@ -117,6 +131,9 @@ class Slider {
         }
       })
     }
+    /**
+     * js初始化基础css样式
+     */
     _initCss () {
       const self = this
       this.$innerBox.css({
@@ -138,15 +155,18 @@ class Slider {
         })
       })
     }
-    _creatFooter () {
-      if (this.$container.find('.slider-footer').length) {
+    /**
+     * 添加底部指示器
+     */
+    _creatIndicator () {
+      if (this.$container.find('.slider-indicator').length) {
         return
       }
       const self = this
-      const html = '<div class="slider-footer"></div>'
-      const $footer = $(html)
+      const html = '<div class="slider-indicator"></div>'
+      const $indicator = $(html)
       for (let i = 0; i < this.liLength; i++) {
-        const $li = $('<span class="slider-footer-order"></span>')
+        const $li = $('<span class="slider-indicator-order"></span>')
         $li.css({
           width: '40px',
           height: '4px',
@@ -155,23 +175,21 @@ class Slider {
           margin: '0 2px',
           cursor: 'pointer'
         });
-        (function (i) {
-          $li.click(function () {
-            self.turnTo(i)
-          })
-        })(i)
-        this.$footers.push($li)
-        $footer.append($li)
+        this.$indicators.push($li)
+        $indicator.append($li)
       }
-      $footer.css({
+      $indicator.css({
         position: 'absolute',
         bottom: '4px',
         width: '100%',
         textAlign: 'center'
       })
-      this.$container.append($footer)
+      this.$container.append($indicator)
       this.changeActiveFooter(0)
     }
+    /**
+     * 绑定各种事件
+     */
     _bindEvent () {
       const self = this
       this.$container.on('mouseover', function () {
@@ -182,7 +200,13 @@ class Slider {
           self.autoPlay()
         }
       })
+      this.$container.on('click', '.slider-indicator-order', function () {
+        self.turnTo($(this).index())
+      })
     }
+    /**
+     * 窗口改变时,重置滑块的大小
+     */
     _resizeBox () {
       const self = this
       const resize = function () {
