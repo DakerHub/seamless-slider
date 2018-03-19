@@ -1,5 +1,5 @@
 class Slider {
-    constructor () {
+    constructor (containerSelector, listSelector, setting) {
       this.setting = {
         activeColor: '#00BCD4',
         autoPlay: true,
@@ -13,46 +13,25 @@ class Slider {
       this.liLength = 0
       this.$footers = []
       this.timer = 0
-    }
-    init (containerSelector, listSelector, setting) {
       Object.assign(this.setting, setting)
+      this.init(containerSelector, listSelector)
+    }
+    init (containerSelector, listSelector) {
       this.$container = $(containerSelector)
+      this.boxWidth = this.$container.width()
       this.$innerBox = $('<div></div>')
       const $lis = $(listSelector)
       this.liLength = $lis.length
-      this.boxWidth = this.$container.width()
-      this.initCss($lis)
+      this._initCss($lis)
       $lis.wrapAll(this.$innerBox)
       this.$innerBox.append($lis.first().clone())
-      // $lis.last().after($lis.first().clone())
-      this.bindEvent()
+      this._bindEvent()
       if (this.setting.controllers.includes('footer')) {
-        this.creatFooter()
+        this._creatFooter()
       }
       if (this.setting.autoPlay) {
         this.autoPlay()
       }
-    }
-    initCss ($lis) {
-      const self = this
-      this.$innerBox.css({
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        height: '100%',
-        display: 'flex'
-      })
-      this.$container.css({
-        position: 'relative',
-        overflow: 'hidden'
-      })
-      $lis.each(function () {
-        $(this).css({
-          float: 'left',
-          width: self.boxWidth + 'px',
-          height: '100%'
-        })
-      })
     }
     autoPlay () {
       this.timer = setInterval(() => {
@@ -117,7 +96,45 @@ class Slider {
       }, 500, 'ease-out')
       this.changeActiveFooter(idx)
     }
-    creatFooter () {
+    changeActiveFooter (idx) {
+      this.$footers.forEach(($ele, i) => {
+        if (i === idx) {
+          $ele
+            .addClass('is-active')
+            .css({
+              background: this.setting.activeColor
+            })
+        } else {
+          $ele
+            .removeClass('is-active')
+            .css({
+              background: '#fff'
+            })
+        }
+      })
+    }
+    _initCss ($lis) {
+      const self = this
+      this.$innerBox.css({
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        height: '100%',
+        display: 'flex'
+      })
+      this.$container.css({
+        position: 'relative',
+        overflow: 'hidden'
+      })
+      $lis.each(function () {
+        $(this).css({
+          float: 'left',
+          width: self.boxWidth + 'px',
+          height: '100%'
+        })
+      })
+    }
+    _creatFooter () {
       if (this.$container.find('.slider-footer').length) {
         return
       }
@@ -151,24 +168,7 @@ class Slider {
       this.$container.append($footer)
       this.changeActiveFooter(0)
     }
-    changeActiveFooter (idx) {
-      this.$footers.forEach(($ele, i) => {
-        if (i === idx) {
-          $ele
-            .addClass('is-active')
-            .css({
-              background: this.setting.activeColor
-            })
-        } else {
-          $ele
-            .removeClass('is-active')
-            .css({
-              background: '#fff'
-            })
-        }
-      })
-    }
-    bindEvent () {
+    _bindEvent () {
       const self = this
       this.$container.on('mouseover', function () {
         clearInterval(self.timer)
