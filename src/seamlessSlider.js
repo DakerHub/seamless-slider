@@ -1,3 +1,5 @@
+const throttle = require('lodash.throttle')
+
 class Slider {
     constructor (containerSelector, listSelector, setting) {
       this.setting = {
@@ -9,9 +11,10 @@ class Slider {
       }
       this.$container = null
       this.$innerBox = null
+      this.$lis = null
+      this.$footers = []
       this.boxWidth = 0
       this.liLength = 0
-      this.$footers = []
       this.timer = 0
       Object.assign(this.setting, setting)
       this.init(containerSelector, listSelector)
@@ -20,11 +23,11 @@ class Slider {
       this.$container = $(containerSelector)
       this.boxWidth = this.$container.width()
       this.$innerBox = $('<div></div>')
-      const $lis = $(listSelector)
-      this.liLength = $lis.length
-      this._initCss($lis)
-      $lis.wrapAll(this.$innerBox)
-      this.$innerBox.append($lis.first().clone())
+      this.$lis = $(listSelector)
+      this.liLength = this.$lis.length
+      this._initCss()
+      this.$lis.wrapAll(this.$innerBox)
+      this.$innerBox.append(this.$lis.first().clone())
       this._bindEvent()
       if (this.setting.controllers.includes('footer')) {
         this._creatFooter()
@@ -32,6 +35,7 @@ class Slider {
       if (this.setting.autoPlay) {
         this.autoPlay()
       }
+      this._resizeBox()
     }
     autoPlay () {
       this.timer = setInterval(() => {
@@ -113,7 +117,7 @@ class Slider {
         }
       })
     }
-    _initCss ($lis) {
+    _initCss () {
       const self = this
       this.$innerBox.css({
         position: 'absolute',
@@ -126,7 +130,7 @@ class Slider {
         position: 'relative',
         overflow: 'hidden'
       })
-      $lis.each(function () {
+      this.$lis.each(function () {
         $(this).css({
           float: 'left',
           width: self.boxWidth + 'px',
@@ -178,6 +182,14 @@ class Slider {
           self.autoPlay()
         }
       })
+    }
+    _resizeBox () {
+      const self = this
+      const resize = function () {
+        self.boxWidth = self.$container.width()
+        self._initCss()
+      }
+      $(window).on('resize', throttle(resize, 100))
     }
   }
   

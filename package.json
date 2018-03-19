@@ -9,8 +9,8 @@
     "dev": "parcel examples/example.html",
     "start": "parcel examples/example.html"
   },
-  "repository": { 
-    "type": "git", 
+  "repository": {
+    "type": "git",
     "url": "https://github.com/tony-cn/seamless-slider.git"
   },
   "keywords": [
@@ -21,5 +21,8 @@
   ],
   "author": "Daker",
   "license": "MIT",
-  "homepage": "https://github.com/tony-cn/seamless-slider/#README.md"
+  "homepage": "https://github.com/tony-cn/seamless-slider/#README.md",
+  "dependencies": {
+    "lodash.throttle": "^4.1.1"
+  }
 }
