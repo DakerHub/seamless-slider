@@ -10,7 +10,7 @@ Prerequisites:
 ## NPM
 
 ```
-$ npm install seamless-slider -s 
+$ npm install seamless-slider -save 
 ```
 
 ## Usage
