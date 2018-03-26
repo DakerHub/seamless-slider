@@ -8,7 +8,8 @@ class Slider {
         autoPlayInterval: 2000,
         autoautoPlayDir: 'left',
         controllers: ['indicator'],
-        switchingInterval: 500
+        switchingInterval: 500,
+        scale: 1
       }
       this.$container = null
       this.$innerBox = null

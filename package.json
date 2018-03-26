@@ -24,5 +24,8 @@
   "homepage": "https://github.com/tony-cn/seamless-slider/#README.md",
   "dependencies": {
     "lodash.throttle": "^4.1.1"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.6.2"
   }
 }
