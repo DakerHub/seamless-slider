@@ -193,17 +193,24 @@ class Slider {
      */
     _bindEvent () {
       const self = this
-      this.$container.on('mouseover', function () {
-        clearInterval(self.timer)
-      })
-      this.$container.on('mouseleave', function () {
-        if (self.setting.autoPlay) {
-          self.autoPlay()
-        }
-      })
-      this.$container.on('click', '.slider-indicator-order', function () {
-        self.turnTo($(this).index())
-      })
+      this.$container
+        .on('mouseover', function () {
+          clearInterval(self.timer)
+        })
+        .on('mouseleave', function () {
+          if (self.setting.autoPlay) {
+            self.autoPlay()
+          }
+        })
+        .on('swipeRight', () => {
+          this.slideRight()
+        })
+        .on('swipeLeft', () => {
+          this.slideLeft()
+        })
+        .on('click', '.slider-indicator-order', function () {
+          self.turnTo($(this).index())
+        })
     }
     /**
      * 窗口改变时,重置滑块的大小
