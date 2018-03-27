@@ -92,7 +92,6 @@ class Slider {
       const maxLeft = - this.boxWidth
       let oriLeft = Number.parseInt(this.$innerBox.css('left'))
       const lastOneLeft = -this.boxWidth * this.liLength
-      console.log(lastOneLeft)
       if (!circulating && oriLeft === 0) {
         // 如果不循环并且是第一张，不继续操作
         return
