@@ -5,7 +5,7 @@ seamless-slider is a carousel plugin for Zepto & jQuery
 ## Installation
 
 Prerequisites:  
- - zepto 1.2.0 event fx / jQuery
+ - zepto 1.2.0 event fx touch / jQuery
 
 ## NPM
 
@@ -41,6 +41,8 @@ const slider = new Slider('#slider-box', '.slider-item', {
 |autoautoPlayDir|String|'left'|Automatic play direction. Enumeration value: 'left', 'right'|
 |controllers|Array|['indicator']|Controllers to be rendered. Controllers: 'indicator'|
 |switchingInterval|Number|500|Interval for switching sliders|
+|circulating|Boolean|true|Whether to loop|
+|initIdx|Number|0|Initial display serial number|
 
 # License
 [MIT](LICENSE)

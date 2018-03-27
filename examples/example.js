@@ -8,5 +8,6 @@ const slider = new Slider('#slider-box', '.slider-item', {
 const slider2 = new Slider('#slider-box-2', '.slider-item-2', {
     activeColor: '#ccc',
     autoPlay: false,
-    switchingInterval: 200
+    switchingInterval: 200,
+    circulating: false
 })

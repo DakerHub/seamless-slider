@@ -9,7 +9,8 @@ class Slider {
         autoautoPlayDir: 'left',
         controllers: ['indicator'],
         switchingInterval: 500,
-        scale: 1
+        circulating: true,
+        initIdx: 0
       }
       this.$container = null
       this.$innerBox = null
@@ -22,6 +23,7 @@ class Slider {
       this.init(containerSelector, listSelector)
     }
     init (containerSelector, listSelector) {
+      const { controllers, autoPlay, circulating, initIdx } = this.setting
       this.$container = $(containerSelector)
       this.boxWidth = this.$container.width()
       this.$innerBox = $('<div></div>')
@@ -29,12 +31,15 @@ class Slider {
       this.liLength = this.$lis.length
       this._initCss()
       this.$lis.wrapAll(this.$innerBox)
-      this.$innerBox.append(this.$lis.first().clone())
       this._bindEvent()
-      if (this.setting.controllers.includes('indicator')) {
+      if (controllers.includes('indicator')) {
         this._creatIndicator()
       }
-      if (this.setting.autoPlay) {
+      if (circulating) {
+        this.$innerBox.append(this.$lis.first().clone())
+      }
+      this.turnTo(initIdx)
+      if (autoPlay) {
         this.autoPlay()
       }
       this._resizeBox()
@@ -43,26 +48,31 @@ class Slider {
      * 开始自动滑动
      */
     autoPlay () {
+      const { autoPlayDir, autoPlayInterval } = this.setting
       this.timer = setInterval(() => {
-        this.setting.autoPlayDir === 'left' ?
+        autoPlayDir === 'left' ?
           this.slideLeft() :
           this.slideRight()
-      }, this.setting.autoPlayInterval)
+      }, autoPlayInterval)
     }
     /**
      * 像左滑动一个滑块
      */
     slideLeft () {
-      const self = this
+      const { circulating } = this.setting
       const oriLeft = Number.parseInt(this.$innerBox.css('left'))
       const minLeft = - this.boxWidth * (this.liLength - 1)
+      const afterLeft = oriLeft - this.boxWidth
+      const isLast = afterLeft < minLeft
+      if (!circulating && isLast) {
+        // 如果不循环播放，并且是最后一张，则不继续滑动
+        return
+      }
       this.$innerBox.animate({
-        left: oriLeft - this.boxWidth + 'px'
+        left: afterLeft + 'px'
       }, this.setting.switchingInterval, 'ease-out', function () {
-        const $this = $(this)
-        const afterLeft = Number.parseInt($this.css('left'))
-        if (afterLeft < minLeft) {
-          $this.css({
+        if (isLast) {
+          $(this).css({
             left: '0px'
           })
         }
@@ -72,34 +82,41 @@ class Slider {
         // 由于无缝轮播在最后clone了第一张，所以这里的判断需要特殊处理一下
         idx = -1
       }
-      this.changeActiveFooter(idx + 1)
+      this._afterSlide(idx + 1)
     }
     /**
      * 向右滑动一个滑块
      */
     slideRight () {
-      const self = this
-      let oriLeft = Number.parseInt(this.$innerBox.css('left'))
+      const { circulating } = this.setting
       const maxLeft = - this.boxWidth
+      let oriLeft = Number.parseInt(this.$innerBox.css('left'))
+      const lastOneLeft = -this.boxWidth * this.liLength
+      console.log(lastOneLeft)
+      if (!circulating && oriLeft === 0) {
+        // 如果不循环并且是第一张，不继续操作
+        return
+      }
       if (oriLeft === 0) {
+        // 如果当前为第一张，则先瞬间移动到最后一张克隆滑块上，再往前滑动
         this.$innerBox.css({
-          left: - this.boxWidth * this.liLength
+          left: lastOneLeft
         })
-        oriLeft = - this.boxWidth * this.liLength
+        oriLeft = lastOneLeft
       }
       this.$innerBox.animate({
         left: oriLeft + this.boxWidth + 'px'
       }, this.setting.switchingInterval, 'ease-out', function () {
         const $this = $(this)
         const afterLeft = Number.parseInt($this.css('left'))
-        if (afterLeft > maxLeft) {
+        if (afterLeft > maxLeft && circulating) {
           $this.css({
-            left: - this.boxWidth * this.liLength + 'px'
+            left: lastOneLeft + 'px'
           })
         }
       })
       const idx = Number.parseInt(Math.abs(oriLeft / this.boxWidth))
-      this.changeActiveFooter(idx - 1)
+      this._afterSlide(idx - 1)
     }
     /**
      * 滑动到指定序号的滑块
@@ -109,7 +126,7 @@ class Slider {
       this.$innerBox.animate({
         left: - idx * this.boxWidth + 'px'
       }, this.setting.switchingInterval, 'ease-out')
-      this.changeActiveFooter(idx)
+      this._afterSlide(idx)
     }
     /**
      * 改变当前的指示器
@@ -155,6 +172,21 @@ class Slider {
           height: '100%'
         })
       })
+    }
+    /**
+     * 滑动一次后的钩子
+     * @param {number} idx 当前滑块的序号
+     */
+    _afterSlide (idx) {
+      for (let i = 0; i < this.$lis.length; i++) {
+        const $li = this.$lis.eq(i)
+        if ($li.is('.is-active')) {
+          $li.removeClass('is-active')
+          break
+        }
+      }
+      this.$lis.eq(idx).addClass('is-active')
+      this.changeActiveFooter(idx)
     }
     /**
      * 添加底部指示器
