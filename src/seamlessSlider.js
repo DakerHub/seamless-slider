@@ -19,6 +19,7 @@ class Slider {
       this.boxWidth = 0
       this.liLength = 0
       this.timer = 0
+      this.currentIndex = 0
       Object.assign(this.setting, setting)
       this.init(containerSelector, listSelector)
     }
@@ -172,11 +173,23 @@ class Slider {
         })
       })
     }
+    _adjustWidth () {
+      const boxWidth = this.boxWidth
+      this.$innerBox.css({
+        left: -this.currentIndex * boxWidth + 'px'
+      })
+      this.$lis.each(function () {
+        $(this).css({
+          width: boxWidth + 'px'
+        })
+      })
+    }
     /**
      * 滑动一次后的钩子
      * @param {number} idx 当前滑块的序号
      */
     _afterSlide (idx) {
+      this.currentIndex = idx
       for (let i = 0; i < this.$lis.length; i++) {
         const $li = this.$lis.eq(i)
         if ($li.is('.is-active')) {
@@ -250,7 +263,7 @@ class Slider {
       const self = this
       const resize = function () {
         self.boxWidth = self.$container.width()
-        self._initCss()
+        self._adjustWidth()
       }
       $(window).on('resize', throttle(resize, 100))
     }
