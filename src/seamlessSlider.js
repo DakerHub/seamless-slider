@@ -33,7 +33,7 @@ class Slider {
       this._initCss()
       this.$lis.wrapAll(this.$innerBox)
       this._bindEvent()
-      if (controllers.includes('indicator')) {
+      if (controllers.indexOf('indicator') !== -1) {
         this._creatIndicator()
       }
       if (circulating) {

@@ -1,6 +1,6 @@
 {
   "name": "seamless-slider",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A seamless carousel plugin for Zepto & jQuery",
   "main": "build/seamlessSlider.js",
   "scripts": {
